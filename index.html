@@ -18,12 +18,21 @@
 
     <section id="color" class="panel active">
         <h2>Color Code</h2>
-        <p>Band selection will go here.</p>
+       <label for="band-count">Bands:</label>
+    <select id="band-count">
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+    </select>
+
+    <div id="bands"></div>
+    <p id="result">Resistance: -</p>
     </section>
     <section id="smd" class="panel">
         <h2>SMD Code</h2>
         <p>SMD code input will go here</p>
     </section>
     <script src="script.js"></script>
+    
 </body>
 </html>

@@ -12,18 +12,18 @@ tabs.forEach(tab => {
 });
 
 const colors = [
-    {name: "Black", digit: 0, multiplier: 1, tolerance: null, tempco: 250 },
-    {name: "Brown", digit: 1, multiplier: 10, tolerance: 1, tempco: 100 },
-    {name: "Red", digit: 2, multiplier: 100, tolerance: 2, tempco: 50 },
-    {name: "Orange", digit: 3, multiplier: 1e3, tolerance: 0.05, tempco: 15 },
-    {name: "Yellow", digit: 4, multiplier: 1e4, tolerance: 0.02, tempco: 25 },
-    {name: "Green", digit: 5, multiplier: 1e5, tolerance: 0.5, tempco: 20 },
-    {name: "Blue", digit: 6, multiplier: 1e6, tolerance: 0.25, tempco: 10 },
-    {name: "Violet", digit: 7, multiplier: 1e7, tolerance: 0.1, tempco: 5 },
-    {name: "Grey" , digit: 8, multiplier: 1e8, tolerance: 0.01, tempco: 1 },
-    {name: "White" , digit: 9, multiplier: 1e9, tolerance: null, tempco: null },
-    {name: "Gold" , digit: null, multiplier: 0.1, tolerance: 5, tempco: null },
-    {name: "Silver" , digit: null, multiplier: 0.01, tolerance: 10, tempco: null }
+    {name: "Black", digit: 0, multiplier: 1, tolerance: null, tempco: 250, hex: "#000000"}, 
+    {name: "Brown", digit: 1, multiplier: 10, tolerance: 1, tempco: 100, hex: "#8B4513"},
+    {name: "Red", digit: 2, multiplier: 100, tolerance: 2, tempco: 50, hex: "#E01010" },
+    {name: "Orange", digit: 3, multiplier: 1e3, tolerance: 0.05, tempco: 15, hex: "#FF8C00" },
+    {name: "Yellow", digit: 4, multiplier: 1e4, tolerance: 0.02, tempco: 25, hex: "#FFD700"},
+    {name: "Green", digit: 5, multiplier: 1e5, tolerance: 0.5, tempco: 20, hex: "#228B22" },
+    {name: "Blue", digit: 6, multiplier: 1e6, tolerance: 0.25, tempco: 10, hex: "#1E5BFF"},
+    {name: "Violet", digit: 7, multiplier: 1e7, tolerance: 0.1, tempco: 5, hex: "#8A2BE2"},
+    {name: "Grey" , digit: 8, multiplier: 1e8, tolerance: 0.01, tempco: 1, hex: "#808080"},
+    {name: "White" , digit: 9, multiplier: 1e9, tolerance: null, tempco: null, hex: "#FFFFFF"},
+    {name: "Gold" , digit: null, multiplier: 0.1, tolerance: 5, tempco: null, hex: "#CFB53B"},
+    {name: "Silver" , digit: null, multiplier: 0.01, tolerance: 10, tempco: null, hex: "#C0C0C0"}
 ];
 
 const bandLayouts = {
@@ -32,9 +32,16 @@ const bandLayouts = {
     6: ["digit", "digit", "digit", "multiplier", "tolerance", "tempco"]
 };
 
+const bandPositions = {
+    4: [95, 118, 141, 200],
+    5: [88, 108, 128, 148, 200],
+    6: [85, 103, 121, 139, 183, 203]
+};
+
 const bandCount = document.getElementById("band-count");
 const bandsBox = document.getElementById("bands");
 const result = document.getElementById("result");
+const resistorSvg = document.getElementById("resistor");
 
 function buildBands() {
     bandsBox.innerHTML = "";
@@ -88,4 +95,21 @@ function calculate() {
     if (tempco !== null) text += ", " + tempco + " ppm/K";
 
     result.textContent = text;
+    drawResistor();
+}
+
+
+function drawResistor() {
+    const selects = bandsBox.querySelectorAll("select");
+    const positions = bandPositions[selects.length];
+
+    let svg = `<line x1="0" y1="40" x2="300" y2="40" stroke="#999" stroke-width="4" />`;
+    svg += `<rect x="70" y="15" width="160" height="50" rx="20" fill="#E8D3A8" />`;
+
+    selects.forEach((select, i) => {
+        const color = colors[select.value];
+        svg += `<rect x="${positions[i]}" y="15" width="12" height="50" fill="${color.hex}" />`;
+    });
+
+    resistorSvg.innerHTML = svg;
 }

@@ -34,6 +34,7 @@ const bandLayouts = {
 
 const bandCount = document.getElementById("band-count");
 const bandsBox = document.getElementById("bands");
+const result = document.getElementById("result");
 
 function buildBands() {
     bandsBox.innerHTML = "";
@@ -52,6 +53,39 @@ function buildBands() {
         });
         bandsBox.appendChild(select);
      });
+     calculate();
 }
 bandCount.addEventListener("change", buildBands);
+bandsBox.addEventListener("change", calculate);
 buildBands();
+
+function formatOhms(value) {
+    if (value >= 1e9) return +(value / 1e9).toFixed(2) + " G\u03A9";
+    if (value >= 1e6) return +(value / 1e6).toFixed(2) + " M\u03A9";
+    if (value >= 1e3) return +(value / 1e3).toFixed(2) + " K\u03A9";
+    return +value.toFixed(2) + " \u03A9";
+}
+
+function calculate() {
+    const selects = bandsBox.querySelectorAll("select");
+    let digits = "";
+    let multiplier = 1;
+    let tolerance = null;
+    let tempco = null;
+
+    selects.forEach(select => {
+        const color = colors[select.value];
+        const role = select.dataset.role;
+
+        if (role === "digit") digits += color.digit;
+        if (role === "multiplier") multiplier = color.multiplier;
+        if (role === "tolerance") tolerance = color.tolerance;
+        if (role === "tempco") tempco = color.tempco;
+    });
+
+    const value = Number(digits) * multiplier;
+    let text = "Resistance: " + formatOhms(value) + " ±" + tolerance + "%";
+    if (tempco !== null) text += ", " + tempco + " ppm/K";
+
+    result.textContent = text;
+}

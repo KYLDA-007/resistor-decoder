@@ -67,9 +67,9 @@ bandsBox.addEventListener("change", calculate);
 buildBands();
 
 function formatOhms(value) {
-    if (value >= 1e9) return +(value / 1e9).toFixed(2) + " G\u03A9";
-    if (value >= 1e6) return +(value / 1e6).toFixed(2) + " M\u03A9";
-    if (value >= 1e3) return +(value / 1e3).toFixed(2) + " K\u03A9";
+    if (value >= 1e9) return +(value / 1e9).toPrecision(2) + " G\u03A9";
+    if (value >= 1e6) return +(value / 1e6).toPrecision(2) + " M\u03A9";
+    if (value >= 1e3) return +(value / 1e3).toPrecision(2) + " K\u03A9";
     return +value.toFixed(2) + " \u03A9";
 }
 
@@ -130,6 +130,14 @@ function decodeSmd(code) {
     if (/^\d*R\d*$/.test(code) && code.length > 1) {
         return Number(code.replace("R", "."));
     }
+    const eia = code.match(/^(\d{2})([ZYRXSABHCDEF])$/);
+    if (eia) {
+    const index = Number(eia[1]);
+    if (index >= 1 && index <= 96) {
+        return e96[index - 1] * eiaMultipliers[eia[2]];
+        }
+    }   
+    
     return null;
 }
 
@@ -144,3 +152,27 @@ smdInput.addEventListener("input", () => {
         smdResult.textContent = "Resistance: " + formatOhms(value);
     }
 });
+
+const e96 = [
+    100, 102, 105, 107, 110, 113, 115, 118, 121, 124, 127, 130,
+    133, 137, 140, 143, 147, 150, 154, 158, 162, 165, 169, 174,
+    178, 182, 187, 191, 196, 200, 205, 210, 215, 221, 226, 232,
+    237, 243, 249, 255, 261, 267, 274, 280, 287, 294, 301, 309,
+    316, 324, 332, 340, 348, 357, 365, 374, 383, 392, 402, 412,
+    422, 432, 442, 453, 464, 475, 487, 499, 511, 523, 536, 549,
+    562, 576, 590, 604, 619, 634, 649, 665, 681, 698, 715, 732,
+    750, 768, 787, 806, 825, 845, 866, 887, 909, 931, 953, 976
+];
+
+const eiaMultipliers = {
+    Z: 0.001,
+    Y: 0.01, R: 0.01,
+    X: 0.1, S: 0.1, 
+    A: 1,
+    B: 10, H: 10,
+    C: 100,
+    D: 1000,
+    E: 10000,
+    F: 100000
+};
+

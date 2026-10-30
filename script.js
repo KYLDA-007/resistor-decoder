@@ -113,3 +113,34 @@ function drawResistor() {
 
     resistorSvg.innerHTML = svg;
 }
+
+const smdInput = document.getElementById("smd-input");
+const smdResult = document.getElementById("smd-result");
+
+function decodeSmd(code) {
+    code = code.trim().toUpperCase();
+
+    if (/^0+$/.test(code)) return 0;
+    if (/^\d{3}$/.test(code)) {
+        return Number(code.slice(0, 2)) * 10 ** Number(code[2]);
+    }
+    if (/^\d{4}$/.test(code)) {
+        return Number(code.slice(0, 3)) * 10 ** Number(code[3]);
+    }
+    if (/^\d*R\d*$/.test(code) && code.length > 1) {
+        return Number(code.replace("R", "."));
+    }
+    return null;
+}
+
+smdInput.addEventListener("input", () => {
+    const value = decodeSmd(smdInput.value);
+
+    if (smdInput.value.trim() === "") {
+        smdResult.textContent = "Resistance: -";
+    } else if (value === null) {
+        smdResult.textContent = "Unknown code";
+    } else {
+        smdResult.textContent = "Resistance: " + formatOhms(value);
+    }
+});

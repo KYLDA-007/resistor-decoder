@@ -38,10 +38,31 @@ const bandPositions = {
     6: [85, 103, 121, 139, 183, 203]
 };
 
+const e96 = [
+    100, 102, 105, 107, 110, 113, 115, 118, 121, 124, 127, 130,
+    133, 137, 140, 143, 147, 150, 154, 158, 162, 165, 169, 174,
+    178, 182, 187, 191, 196, 200, 205, 210, 215, 221, 226, 232,
+    237, 243, 249, 255, 261, 267, 274, 280, 287, 294, 301, 309,
+    316, 324, 332, 340, 348, 357, 365, 374, 383, 392, 402, 412,
+    422, 432, 442, 453, 464, 475, 487, 499, 511, 523, 536, 549,
+    562, 576, 590, 604, 619, 634, 649, 665, 681, 698, 715, 732,
+    750, 768, 787, 806, 825, 845, 866, 887, 909, 931, 953, 976
+];
+
+const e12 = [10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82];
+
+const e24 = [
+    10, 11, 12, 13, 15, 16, 18, 20, 22, 24, 27, 30,
+    33, 36, 39, 43, 47, 51, 56, 62, 68, 75, 82, 91
+];
+
+
 const bandCount = document.getElementById("band-count");
 const bandsBox = document.getElementById("bands");
 const result = document.getElementById("result");
 const resistorSvg = document.getElementById("resistor");
+const rangeText = document.getElementById("range");
+const seriesText = document.getElementById("series");
 
 function buildBands() {
     bandsBox.innerHTML = "";
@@ -70,7 +91,7 @@ function formatOhms(value) {
     if (value >= 1e9) return +(value / 1e9).toPrecision(2) + " G\u03A9";
     if (value >= 1e6) return +(value / 1e6).toPrecision(2) + " M\u03A9";
     if (value >= 1e3) return +(value / 1e3).toPrecision(2) + " K\u03A9";
-    return +value.toFixed(2) + " \u03A9";
+    return +value.toPrecision(2) + " \u03A9";
 }
 
 function calculate() {
@@ -95,6 +116,10 @@ function calculate() {
     if (tempco !== null) text += ", " + tempco + " ppm/K";
 
     result.textContent = text;
+    const min = value * (1 - tolerance / 100);
+    const max = value * (1 + tolerance / 100);
+    rangeText.textContent = "Range: " + formatOhms(min) + " \u2013 " + formatOhms(max); 
+    seriesText.textContent = "E-series: " + findSeries(value); 
     drawResistor();
 }
 
@@ -137,7 +162,7 @@ function decodeSmd(code) {
         return e96[index - 1] * eiaMultipliers[eia[2]];
         }
     }   
-    
+
     return null;
 }
 
@@ -153,16 +178,6 @@ smdInput.addEventListener("input", () => {
     }
 });
 
-const e96 = [
-    100, 102, 105, 107, 110, 113, 115, 118, 121, 124, 127, 130,
-    133, 137, 140, 143, 147, 150, 154, 158, 162, 165, 169, 174,
-    178, 182, 187, 191, 196, 200, 205, 210, 215, 221, 226, 232,
-    237, 243, 249, 255, 261, 267, 274, 280, 287, 294, 301, 309,
-    316, 324, 332, 340, 348, 357, 365, 374, 383, 392, 402, 412,
-    422, 432, 442, 453, 464, 475, 487, 499, 511, 523, 536, 549,
-    562, 576, 590, 604, 619, 634, 649, 665, 681, 698, 715, 732,
-    750, 768, 787, 806, 825, 845, 866, 887, 909, 931, 953, 976
-];
 
 const eiaMultipliers = {
     Z: 0.001,
@@ -176,3 +191,18 @@ const eiaMultipliers = {
     F: 100000
 };
 
+function findSeries(value) {
+    if (value <= 0) return "-";
+
+    let m = value;
+    while (m >= 1000) m /= 10;
+    while (m <100) m *=10;
+    m = Math.round(m);
+
+    const found = [];
+    if (e12.map(v => v * 10).includes(m)) found.push("E12");
+    if (e24.map(v => v * 10).includes(m)) found.push("E24");
+    if (e96.includes(m)) found.push("E96");
+
+    return found.length ? found.join(", ") : "Not a standart value";
+}

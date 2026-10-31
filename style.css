@@ -7,3 +7,9 @@
 .tab.active {
     font-weight: bold;
 }
+.resistor-card {
+    margin-top: 16px;
+}
+.resistor-card p {
+    margin: 4px 0;
+}

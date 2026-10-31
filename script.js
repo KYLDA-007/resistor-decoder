@@ -204,5 +204,82 @@ function findSeries(value) {
     if (e24.map(v => v * 10).includes(m)) found.push("E24");
     if (e96.includes(m)) found.push("E96");
 
-    return found.length ? found.join(", ") : "Not a standart value";
+    return found.length ? found.join(", ") : "Not a standard value";
 }
+
+const reverseInput = document.getElementById("reverse-input");
+const reverseResult = document.getElementById("reverse-result");
+const reverseOutput = document.getElementById("reverse-output");
+
+function parseValue(text) {
+        text = text.trim().toUpperCase().replace(",", ".");
+        const prefixes = {R: 1, K: 1e3, M: 1e6, G:1e9 };
+    
+        let m = text.match(/^(\d*)([RKMG])(\d*)$/);
+        if (m && (m[1] || m[3])) {
+        return Number((m[1] || "0") + "." + (m[3] || "0")) * prefixes[m[2]];
+    }
+        m = text.match(/^(\d+\.?\d*|\.\d+)([KMG]?)$/);
+        if (m) {
+            return Number(m[1]) * (m[2] ? prefixes[m[2]] : 1);
+    }
+
+    return null;
+}
+
+function valueToBands(value, digitCount) {
+    if (value <= 0) return null;
+
+    let exp = Math.floor(Math.log10(value)) - (digitCount - 1);
+    let digits = Math.round(value / 10 ** exp);
+
+    if (digits >= 10 ** digitCount) {
+        digits /=10;
+        exp++;
+    }
+    if (Math.abs(digits * 10 ** exp - value) > value * 1e-9) return null;
+    if (exp < -2 || exp > 9) return null;
+    return  {digits: String(digits).split("").map(Number), exp: exp};
+}
+function bandColors(value, digitCount, toleranceIndex) {
+    const bands = valueToBands(value, digitCount);
+    if (!bands) return null;
+    const list = [...bands.digits];
+    list.push(colors.findIndex(c => c.multiplier === 10 ** bands.exp));
+    list.push(toleranceIndex);
+    return list;
+}
+function resistorCard(title, list, bodyColor) {
+    if (!list) {
+        return `<div class="resistor-card"><p>${title}: not possible with this many bands</p></div>`;
+    }
+
+    const positions = bandPositions[list.length];
+    let svg = `<svg viewBox="0 0 300 80" width="300" height="80">`;
+    svg += `<line x1="0" y1="40" x2="300" y2="40" stroke="#999" stroke-width="4" />`;
+    svg += `<rect x="70" y="15" width="160" height="50" rx="20" fill="${bodyColor}" />`;
+
+    list.forEach((index, i) => {
+        svg += `<rect x="${positions[i]}" y="15" width="12" height="50" fill="${colors[index].hex}" />`; 
+    });
+    svg += `</svg>`;
+
+    const names = list.map(index => colors[index].name).join(", ");
+    return `<div class="resistor-card"><p>${title}</p>${svg}<p>${names}</p></div>`;
+}
+reverseInput.addEventListener("input", () => {
+    const value = parseValue(reverseInput.value);
+
+    if (reverseInput.value.trim() === "") {
+        reverseResult.textContent = "-";
+        reverseOutput.innerHTML = "";
+    } else if (value === null) {
+        reverseResult.textContent = "Unknown value";
+        reverseOutput.innerHTML = "";
+    } else {
+        reverseResult.textContent = "Value: " + formatOhms(value);
+        reverseOutput.innerHTML = 
+           resistorCard("4 bands", bandColors(value, 2, 10), "#E8D3A8") +
+           resistorCard("5 bands", bandColors(value, 3, 1), "#9EC9E8");
+    }
+});

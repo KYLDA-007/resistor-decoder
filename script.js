@@ -68,12 +68,13 @@ function buildBands() {
     bandsBox.innerHTML = "";
     const layout = bandLayouts[bandCount.value];
     
-    layout.forEach(role => {
+    layout.forEach((role, bandIndex) => {
         const select = document.createElement("select");
         select.dataset.role = role;
 
         colors.forEach((color, index) => {
             if (color[role] === null) return;
+            if (bandIndex === 0 && index === 0) return;
             const option = document.createElement("option");
             option.value = index;
             option.textContent = color.name;
@@ -283,3 +284,23 @@ reverseInput.addEventListener("input", () => {
            resistorCard("5 bands", bandColors(value, 3, 1), "#9EC9E8");
     }
 });
+
+const themeToggle = document.getElementById("theme-toggle");
+
+function setTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    themeToggle.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+    try {
+        localStorage.setItem("theme", theme);
+    } catch (e) {}
+}
+themeToggle.addEventListener("click" , () => {
+    const current = document.documentElement.dataset.theme;
+    setTheme(current === "dark" ? "light" : "dark");
+});
+let savedTheme = null;
+try {
+    savedTheme = localStorage.getItem("theme");
+} catch (e) {}
+const preferDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+setTheme(savedTheme || (preferDark ? "dark" : "light"));

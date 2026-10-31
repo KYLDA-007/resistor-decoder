@@ -21,6 +21,28 @@
     --border: #dddddd;
     --accent: #b5651d;
 }
+:root[data-theme="dark"] {
+    --bg: #1B1D1D;
+    --card: #26262A;
+    --text: #eeeeee;
+    --muted: #a0a0a0;
+    --border: #3a3a3f;
+    --accent: #e08a3c;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+}
 body {
     max-width: 840px;
     margin: 40px auto;

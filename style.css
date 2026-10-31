@@ -13,3 +13,116 @@
 .resistor-card p {
     margin: 4px 0;
 }
+:root {
+    --bg: #f4f1ea;
+    --card: #ffffff;
+    --text: #222222;
+    --muted: #666666;
+    --border: #dddddd;
+    --accent: #b5651d;
+}
+body {
+    max-width: 840px;
+    margin: 40px auto;
+    padding: 0 17px;
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+h1 {
+    font-size: 36px;
+    margin-bottom: 16px;
+}
+h2 {
+    font-size: 20px;
+    margin-top: 0;
+}
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+.tab {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 16px;
+    font-size: 15px;
+    color: var(--muted);
+    cursor: pointer;
+}
+.tab:hover {
+    color: var(--text);
+}
+.tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+}
+.tab:focus {
+    outline: none;
+}
+.tab:focus-visible {
+    outline: 2px solid var(--accent);
+}
+.panel {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+}
+.panel.active {
+    display: block;
+}
+.resistor-card{
+    margin-top: 16px;
+}
+.resistor-card p {
+    margin: 4px 0;
+}
+
+#resistor,
+.resistor-card svg {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    margin: 20px auto;
+}
+select,
+input {
+    font-size: 16px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+}
+input {
+    width: 160px;
+}
+label {
+    margin-right: 8px;
+    color: var(--muted);
+}
+#bands {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+#result,
+#smd-result,
+#reverse-result {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 20px 0 8px;
+}
+#range,
+#series {
+    color: var(--muted);
+    margin: 4px 0;
+}

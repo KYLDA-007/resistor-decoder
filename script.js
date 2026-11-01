@@ -63,6 +63,7 @@ const result = document.getElementById("result");
 const resistorSvg = document.getElementById("resistor");
 const rangeText = document.getElementById("range");
 const seriesText = document.getElementById("series");
+const reverseTolerance = document.getElementById("reverse-tolerance");
 
 function buildBands() {
     bandsBox.innerHTML = "";
@@ -142,6 +143,7 @@ function drawResistor() {
 
 const smdInput = document.getElementById("smd-input");
 const smdResult = document.getElementById("smd-result");
+const smdSeries = document.getElementById("smd-series");
 
 function decodeSmd(code) {
     code = code.trim().toUpperCase();
@@ -172,10 +174,13 @@ smdInput.addEventListener("input", () => {
 
     if (smdInput.value.trim() === "") {
         smdResult.textContent = "Resistance: -";
+        smdSeries.textContent = "";
     } else if (value === null) {
         smdResult.textContent = "Unknown code";
+        smdSeries.textContent = "";
     } else {
         smdResult.textContent = "Resistance: " + formatOhms(value);
+        smdSeries.textContent = "E-series: " + findSeries(value);
     }
 });
 
@@ -211,6 +216,17 @@ function findSeries(value) {
 const reverseInput = document.getElementById("reverse-input");
 const reverseResult = document.getElementById("reverse-result");
 const reverseOutput = document.getElementById("reverse-output");
+const reverseRange = document.getElementById("reverse-range");
+const reverseSeries = document.getElementById("reverse-series");
+
+colors.forEach((color, index) => {
+    if (color.tolerance === null) return;
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = "\u00B1" + color.tolerance + "% (" + color.name + ")";
+    reverseTolerance.appendChild(option);
+});
+reverseTolerance.value = 10;
 
 function parseValue(text) {
         text = text.trim().toUpperCase().replace(",", ".");
@@ -268,22 +284,32 @@ function resistorCard(title, list, bodyColor) {
     const names = list.map(index => colors[index].name).join(", ");
     return `<div class="resistor-card"><p>${title}</p>${svg}<p>${names}</p></div>`;
 }
-reverseInput.addEventListener("input", () => {
+function updateReverse () {
     const value = parseValue(reverseInput.value);
 
     if (reverseInput.value.trim() === "") {
         reverseResult.textContent = "-";
         reverseOutput.innerHTML = "";
+        reverseRange.textContent = "";
+        reverseSeries.textContent = "";
     } else if (value === null) {
         reverseResult.textContent = "Unknown value";
         reverseOutput.innerHTML = "";
+
     } else {
         reverseResult.textContent = "Value: " + formatOhms(value);
+        const tolerance = colors[reverseTolerance.value].tolerance;
+        const min = value * (1 - tolerance / 100);
+        const max = value * (1 + tolerance / 100);
+        reverseRange.textContent = "Range: " + formatOhms(min) + " \u2013 " + formatOhms(max);
+        reverseSeries.textContent = "E-series: " + findSeries(value);
         reverseOutput.innerHTML = 
-           resistorCard("4 bands", bandColors(value, 2, 10), "#E8D3A8") +
-           resistorCard("5 bands", bandColors(value, 3, 1), "#9EC9E8");
+           resistorCard("4 bands", bandColors(value, 2, Number(reverseTolerance.value)), "#E8D3A8") +
+           resistorCard("5 bands", bandColors(value, 3, Number(reverseTolerance.value)), "#9EC9E8");
     }
-});
+}
+reverseInput.addEventListener("input", updateReverse);
+reverseTolerance.addEventListener("change", updateReverse);
 
 const themeToggle = document.getElementById("theme-toggle");
 

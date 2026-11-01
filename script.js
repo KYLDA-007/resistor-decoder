@@ -90,10 +90,10 @@ bandsBox.addEventListener("change", calculate);
 buildBands();
 
 function formatOhms(value) {
-    if (value >= 1e9) return +(value / 1e9).toPrecision(2) + " G\u03A9";
-    if (value >= 1e6) return +(value / 1e6).toPrecision(2) + " M\u03A9";
-    if (value >= 1e3) return +(value / 1e3).toPrecision(2) + " K\u03A9";
-    return +value.toPrecision(2) + " \u03A9";
+  if (value >= 1e9) return +(value / 1e9).toPrecision(3) + " G\u03A9";
+    if (value >= 1e6) return +(value / 1e6).toPrecision(3) + " M\u03A9";
+    if (value >= 1e3) return +(value / 1e3).toPrecision(3) + " k\u03A9";
+    return +value.toPrecision(3) + " \u03A9";
 }
 
 function calculate() {
@@ -135,7 +135,7 @@ function drawResistor() {
 
     selects.forEach((select, i) => {
         const color = colors[select.value];
-        svg += `<rect x="${positions[i]}" y="15" width="12" height="50" fill="${color.hex}" />`;
+        svg += `<rect class="band" x="${positions[i]}" y="15" width="12" height="50" fill="${color.hex}"><title>${color.name}</title></rect>`;
     });
 
     resistorSvg.innerHTML = svg;
@@ -277,7 +277,7 @@ function resistorCard(title, list, bodyColor) {
     svg += `<rect x="70" y="15" width="160" height="50" rx="20" fill="${bodyColor}" />`;
 
     list.forEach((index, i) => {
-        svg += `<rect x="${positions[i]}" y="15" width="12" height="50" fill="${colors[index].hex}" />`; 
+        svg += `<rect class="band" x="${positions[i]}" y="15" width="12" height="50" fill="${colors[index].hex}"><title>${colors[index].name}</title></rect>`;
     });
     svg += `</svg>`;
 
@@ -285,8 +285,7 @@ function resistorCard(title, list, bodyColor) {
     return `<div class="resistor-card"><p>${title}</p>${svg}<p>${names}</p></div>`;
 }
 function updateReverse () {
-    const value = parseValue(reverseInput.value);
-
+    const value = parseValue(reverseInput.value);;
     if (reverseInput.value.trim() === "") {
         reverseResult.textContent = "-";
         reverseOutput.innerHTML = "";
@@ -295,6 +294,8 @@ function updateReverse () {
     } else if (value === null) {
         reverseResult.textContent = "Unknown value";
         reverseOutput.innerHTML = "";
+        reverseRange.textContent = "";
+        reverseSeries.textContent = "";
 
     } else {
         reverseResult.textContent = "Value: " + formatOhms(value);
@@ -330,3 +331,42 @@ try {
 } catch (e) {}
 const preferDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 setTheme(savedTheme || (preferDark ? "dark" : "light"));
+
+function saveState() {
+    const state = {
+        tab: document.querySelector(".tab.active").dataset.tab,
+        bandCount:bandCount.value,
+        bands: [...bandsBox.querySelectorAll("select")].map(s => s.value),
+        smd: smdInput.value,
+        reverse: reverseInput.value,
+        tolerance: reverseTolerance.value
+    };
+    try {
+        localStorage.setItem("state", JSON.stringify(state));
+    } catch (e) {}
+}
+document.addEventListener("input", saveState);
+document.addEventListener("change", saveState);
+document.addEventListener("click", saveState);
+
+let state = null;
+try {
+    state = JSON.parse(localStorage.getItem("state"));
+} catch (e) {}
+if (state) {
+    bandCount.value = state.bandCount;
+    buildBands();
+    bandsBox.querySelectorAll("select").forEach((s, i) =>{
+        if (state.bands[i] !== undefined) s.value = state.bands[i];
+        if (s.value === "") s.selectedIndex = 0;
+    });
+    calculate();
+
+    smdInput.value = state.smd;
+    smdInput.dispatchEvent(new Event("input"));
+    reverseTolerance.value = state.tolerance;
+    reverseInput.value = state.reverse;
+    updateReverse();
+    const tab = document.querySelector(`.tab[data-tab="${state.tab}"]`);
+    if (tab) tab.click();
+}

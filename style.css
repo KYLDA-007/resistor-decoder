@@ -151,3 +151,38 @@ label {
     color: var(--muted);
     margin: 4px 0;
 }
+select,
+input,
+#theme-toggle {
+    transition: border-color 0.15s, box-show 0.15s;
+}
+select:hover,
+input:hover,
+#theme-toggle:hover {
+    border-color: var(--accent);
+}
+select:focus,
+input:focus {
+    outline:none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(181, 101, 29, 0.25);
+}
+select {
+    cursor:pointer;
+}
+.band {
+    transition: opacity 0.15s;
+    cursor: help;
+}
+.band:hover {
+    opacity: 0.6s;
+}
+.resistor-card {
+    padding: 12px 16px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    transition: border-color 0.15s;
+}
+.resistor-card:hover {
+    border-color: var(--border);
+}
